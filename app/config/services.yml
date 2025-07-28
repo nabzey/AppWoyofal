@@ -14,6 +14,17 @@ services:
         - PDO
       singleton: true
 
+    CompteurRepository:
+      class: App\Repository\CompteurRepository
+      dependencies:
+        - PDO
+      singleton: true
+
+    TrancheRepository:
+      class: App\Repository\TrancheRepository
+      dependencies: []
+      singleton: true
+
   # Services
   services:
     LoggerService:
@@ -22,11 +33,34 @@ services:
         - LoggerRepository
       singleton: true
 
+    TrancheService:
+      class: App\Service\TrancheService
+      dependencies: []
+      singleton: true
+
+    CompteurService:
+      class: App\Service\CompteurService
+      dependencies:
+        - CompteurRepository
+      singleton: true
+
+    AchatService:
+      class: App\Service\AchatService
+      dependencies:
+        - CompteurRepository
+        - TrancheRepository
+        - ClientRepository
+        - LoggerService
+      singleton: true
+
     ClientService:
       class: App\Service\ClientService
       dependencies:
         - ClientRepository
         - LoggerService
+        - AchatService
+        - CompteurService
+        - TrancheService
       singleton: true
 
   # Controllers

@@ -36,9 +36,6 @@ class LoggerRepository extends AbstractRepository implements ILoggerRepository
         $this->execute($query, $params);
     }
 
-    /**
-     * Récupère les logs bruts pour audit, analyse ou supervision.
-     */
     public function getRequestLogs(int $limit = 100, int $offset = 0): array
     {
         $query = "SELECT * FROM logs ORDER BY created_at DESC LIMIT ? OFFSET ?";
@@ -47,13 +44,11 @@ class LoggerRepository extends AbstractRepository implements ILoggerRepository
         $stmt->bindValue(2, $offset, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC); // brut → tableau
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function saveLog(string $message): void
     {
-        // Ici, tu peux ajouter la logique pour sauvegarder le log, par exemple dans un fichier ou une base de données
-        // Exemple simple :
         file_put_contents(__DIR__ . '/../../logs/app.log', date('Y-m-d H:i:s') . ' - ' . $message . PHP_EOL, FILE_APPEND);
     }
 }

@@ -19,7 +19,7 @@ class ServiceContainer extends Singleton
 
     private function loadConfiguration(): void
     {
-        $configFile = __DIR__ . '/../services.yml';
+        $configFile = __DIR__ . '/../config/services.yml';
         if (file_exists($configFile)) {
             $this->config = Yaml::parseFile($configFile);
         }
@@ -63,10 +63,8 @@ class ServiceContainer extends Singleton
             }
         }
 
-        // Instancier le service
-        $service = empty($dependencies) 
-            ? new $className() 
-            : new $className(...$dependencies);
+        // 🔥 CORRECTION : Gérer les classes Singleton différemment
+        $service = $this->instantiateService($className, $dependencies);
 
         // Stocker si singleton
         if ($serviceConfig['singleton'] ?? false) {
@@ -74,6 +72,28 @@ class ServiceContainer extends Singleton
         }
 
         return $service;
+    }
+
+    /**
+     * Instancie un service en gérant les Singletons et les classes normales
+     */
+    private function instantiateService(string $className, array $dependencies): object
+    {
+        // Vérifier si c'est une classe qui hérite de Singleton
+        if (is_subclass_of($className, \App\Core\Abstract\Singleton::class)) {
+            // Pour les Singletons, on utilise getInstance() et on injecte les dépendances si possible
+            $instance = $className::getInstance();
+            
+            // Si le singleton a besoin de dépendances après instantiation, on peut les injecter
+            // (cette partie dépend de votre implémentation spécifique)
+            
+            return $instance;
+        }
+
+        // Pour les classes normales, instanciation classique
+        return empty($dependencies) 
+            ? new $className() 
+            : new $className(...$dependencies);
     }
 
     private function findServiceConfig(string $serviceName): ?array
@@ -117,7 +137,6 @@ class ServiceContainer extends Singleton
     {
         $instance = self::getInstance();
         if (file_exists($yamlPath)) {
-            // Utilisation de Symfony Yaml
             $instance->config = \Symfony\Component\Yaml\Yaml::parseFile($yamlPath);
         }
         return $instance;

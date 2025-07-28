@@ -168,4 +168,21 @@ class ClientController
             'message' => count($data) ? 'Liste des clients' : 'Aucun client trouvé'
         ];
     }
+    
+    // POST /clients/achat
+    public function acheterCredit(array $body): array
+    {
+        if (!isset($body['numero_compteur']) || !isset($body['montant'])) {
+            return [
+                'data' => null,
+                'statut' => 'error',
+                'code' => 400,
+                'message' => 'Champs obligatoires manquants : numero_compteur, montant'
+            ];
+        }
+        $numeroCompteur = $body['numero_compteur'];
+        $montant = (float)$body['montant'];
+        $result = $this->clientService->acheterCreditWoyofal($numeroCompteur, $montant);
+        return $result;
+    }
 }

@@ -13,3 +13,8 @@ $router->addRoute('GET', '/client', function () use ($clientController) {
     return json_encode($clientController->all());
 });
 
+$router->addRoute('POST', '/client/achat', function () use ($clientController) {
+    $body = json_decode(file_get_contents('php://input'), true);
+    return json_encode($clientController->acheterCredit($body));
+});
+

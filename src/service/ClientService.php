@@ -9,11 +9,17 @@ class ClientService
 {
     private ClientRepository $clientRepository;
     private LoggerService $loggerService;
+    private \App\Service\AchatService $achatService;
+    private \App\Service\CompteurService $compteurService;
+    private \App\Service\TrancheService $trancheService;
 
-    public function __construct(ClientRepository $clientRepository, LoggerService $loggerService)
+    public function __construct(ClientRepository $clientRepository, LoggerService $loggerService, \App\Service\AchatService $achatService, \App\Service\CompteurService $compteurService, \App\Service\TrancheService $trancheService)
     {
         $this->clientRepository = $clientRepository;
         $this->loggerService = $loggerService;
+        $this->achatService = $achatService;
+        $this->compteurService = $compteurService;
+        $this->trancheService = $trancheService;
     }
 
     public function createClient(array $data): Client
@@ -96,5 +102,28 @@ class ClientService
     public function getAllClients(): array
     {
         return $this->clientRepository->findAll();
+    }
+    
+    /**
+     * Gère l'achat d'un crédit Woyofal pour un client via un numéro de compteur et un montant.
+     * Retourne la structure attendue (success ou error).
+     */
+    public function acheterCreditWoyofal(string $numeroCompteur, float $montant): array
+    {
+        // Vérifier l'existence du compteur
+        $compteur = $this->compteurService->getCompteurByNumero($numeroCompteur);
+        if (!$compteur) {
+            $this->loggerService->log("Achat échoué : numéro de compteur non trouvé ($numeroCompteur)");
+            return [
+                'data' => null,
+                'statut' => 'error',
+                'code' => 404,
+                'message' => 'Le numéro de compteur non retrouvé'
+            ];
+        }
+        // Générer l'achat via AchatService (qui gère tranches, code, etc.)
+        $result = $this->achatService->genererAchat($numeroCompteur, $montant);
+        // Journalisation déjà faite dans AchatService
+        return $result;
     }
 }
