@@ -10,7 +10,7 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
 {
     public function find($id): ?Client
     {
-        $query = "SELECT * FROM clients WHERE id = ?";
+        $query = "SELECT * FROM client WHERE id = ?";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$id]);
 
@@ -21,7 +21,7 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
                 $row['id'],
                 $row['nom'],
                 $row['prenom'],
-                $row['numero_compteur']
+                $row['numero_compteur'] ?? null
             );
         }
 
@@ -30,19 +30,16 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
 
     public function findByCompteur($numero): ?Client
     {
-        $query = "SELECT * FROM clients WHERE numero_compteur = ?";
+        $query = "SELECT * FROM compteur WHERE numero_compteur = ?";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$numero]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            return new Client(
-                $row['id'],
-                $row['nom'],
-                $row['prenom'],
-                $row['numero_compteur']
-            );
+            // On récupère le client lié au compteur
+            $clientId = $row['client_id'];
+            return $this->find($clientId);
         }
 
         return null;
@@ -50,19 +47,16 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
 
     public function findByNumero($numero): ?Client
     {
-        $query = "SELECT * FROM clients WHERE numero_compteur = ?";
+        $query = "SELECT * FROM compteur WHERE numero_compteur = ?";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$numero]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            return new Client(
-                $row['id'],
-                $row['nom'],
-                $row['prenom'],
-                $row['numero_compteur']
-            );
+            // On récupère le client lié au compteur
+            $clientId = $row['client_id'];
+            return $this->find($clientId);
         }
 
         return null;
@@ -70,11 +64,10 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
 
     public function save($client): bool
     {
-        $query = "INSERT INTO clients (nom, prenom, numero_compteur) VALUES (?, ?, ?)";
+        $query = "INSERT INTO client (nom, prenom) VALUES (?, ?)";
         $params = [
             $client->getNom(),
-            $client->getPrenom(),
-            $client->getNumeroCompteur()
+            $client->getPrenom()
         ];
 
         try {
@@ -87,8 +80,26 @@ class ClientRepository extends AbstractRepository implements RepositoryInterface
 
     public function delete($id): bool
     {
-        $query = "DELETE FROM clients WHERE id = ?";
+        $query = "DELETE FROM client WHERE id = ?";
         $stmt = $this->getConnection()->prepare($query);
         return $stmt->execute([$id]);
+    }
+
+    public function findAll(): array
+    {
+        $query = "SELECT * FROM client";
+        $stmt = $this->getConnection()->query($query);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $clients = [];
+        foreach ($rows as $row) {
+            $clients[] = new Client(
+                $row['id'],
+                $row['nom'],
+                $row['prenom'],
+                $row['telephone'] ?? null,
+                $row['adresse'] ?? null
+            );
+        }
+        return $clients;
     }
 }

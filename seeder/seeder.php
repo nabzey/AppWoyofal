@@ -21,49 +21,50 @@ try {
     echo "Connexion à la base de données réussie!\n";
 
     // Données de test
-    $clients = [
+    $client = [
         ['nom' => 'Niang', 'prenom' => 'Die', 'telephone' => '771234567', 'adresse' => 'Dakar'],
         ['nom' => 'Diop', 'prenom' => 'Aminata', 'telephone' => '778765432', 'adresse' => 'Saint-Louis'],
     ];
-    foreach ($clients as $client) {
-        $pdo->prepare("INSERT INTO clients (nom, prenom, telephone, adresse) VALUES (:nom, :prenom, :telephone, :adresse)")
-            ->execute($client);
+    foreach ($client as $c) {
+        $pdo->prepare("INSERT INTO client (nom, prenom) VALUES (:nom, :prenom)")
+            ->execute(['nom' => $c['nom'], 'prenom' => $c['prenom']]);
     }
 
-    $compteurs = [
-        ['numero' => 'CPT123456', 'client_id' => 1],
-        ['numero' => 'CPT654321', 'client_id' => 2],
+    $compteur= [
+        ['numero_compteur' => 'CPT123456', 'client_id' => 1],
+        ['numero_compteur' => 'CPT654321', 'client_id' => 2],
     ];
-    foreach ($compteurs as $compteur) {
-        $pdo->prepare("INSERT INTO compteurs (numero, client_id) VALUES (:numero, :client_id)")
-            ->execute($compteur);
+    foreach ($compteur as $c) {
+        $pdo->prepare("INSERT INTO compteur (numero_compteur, client_id) VALUES (:numero_compteur, :client_id)")
+            ->execute($c);
     }
 
-    $tranches = [
-        ['libelle' => 'Tranche 1', 'prix_kw' => 98, 'limite_kw' => 100],
-        ['libelle' => 'Tranche 2', 'prix_kw' => 120, 'limite_kw' => 200],
-        ['libelle' => 'Tranche 3', 'prix_kw' => 150, 'limite_kw' => 999999],
+    $tranche = [
+        ['tranche_num' => 1, 'seuil_min' => 0, 'seuil_max' => 100, 'prix_unitaire' => 98],
+        ['tranche_num' => 2, 'seuil_min' => 101, 'seuil_max' => 200, 'prix_unitaire' => 120],
+        ['tranche_num' => 3, 'seuil_min' => 201, 'seuil_max' => 999999, 'prix_unitaire' => 150],
     ];
-    foreach ($tranches as $tranche) {
-        $pdo->prepare("INSERT INTO tranches (libelle, prix_kw, limite_kw) VALUES (:libelle, :prix_kw, :limite_kw)")
-            ->execute($tranche);
+    foreach ($tranche as $t) {
+        $pdo->prepare("INSERT INTO tranche (tranche_num, seuil_min, seuil_max, prix_unitaire) VALUES (:tranche_num, :seuil_min, :seuil_max, :prix_unitaire)")
+            ->execute($t);
     }
 
-    $achats = [
+    $achat = [
         [
+            'compteur_id' => 1,
             'reference' => 'WOY-20250727-8007',
-            'code' => '4851-2772-3511-5312',
-            'nbre_kwt' => 1.02,
-            'date' => '2025-07-27 20:57:38',
-            'tranche_id' => 1,
-            'prix_kw' => 98,
-            'client_id' => 1,
-            'compteur_id' => 1
+            'code_recharge' => '4851-2772-3511-5312',
+            'nombre_kwh' => 1,
+            'tranche' => 1,
+            'prix_unitaire' => 98,
+            'montant_total' => 98,
+            'client_nom' => 'Niang',
+            'client_prenom' => 'Die'
         ]
     ];
-    foreach ($achats as $achat) {
-        $pdo->prepare("INSERT INTO achats (reference, code, nbre_kwt, date, tranche_id, prix_kw, client_id, compteur_id) VALUES (:reference, :code, :nbre_kwt, :date, :tranche_id, :prix_kw, :client_id, :compteur_id)")
-            ->execute($achat);
+    foreach ($achat as $a) {
+        $pdo->prepare("INSERT INTO achat (compteur_id, reference, code_recharge, nombre_kwh, tranche, prix_unitaire, montant_total, client_nom, client_prenom) VALUES (:compteur_id, :reference, :code_recharge, :nombre_kwh, :tranche, :prix_unitaire, :montant_total, :client_nom, :client_prenom)")
+            ->execute($a);
     }
 
     echo "\nDonnées de test insérées avec succès!\n";

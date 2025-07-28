@@ -92,4 +92,9 @@ class ClientService
             'adresse' => $client->getAdresse(),
         ];
     }
+
+    public function getAllClients(): array
+    {
+        return $this->clientRepository->findAll();
+    }
 }

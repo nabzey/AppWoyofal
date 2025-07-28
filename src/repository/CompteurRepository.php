@@ -26,10 +26,10 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
 
     public function find($numero): ?Compteur
     {
-        $query = "SELECT c.id AS compteur_id, c.numero, cl.id AS client_id, cl.nom, cl.prenom
-                  FROM compteurs c
-                  JOIN clients cl ON c.client_id = cl.id
-                  WHERE c.numero = ?";
+        $query = "SELECT c.id AS compteur_id, c.numero_compteur, cl.id AS client_id, cl.nom, cl.prenom
+                  FROM compteur c
+                  JOIN client cl ON c.client_id = cl.id
+                  WHERE c.numero_compteur = ?";
 
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$numero]);
@@ -40,13 +40,12 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
             $client = new Client(
                 $row['client_id'],
                 $row['nom'],
-                $row['prenom'],
-                $row['numero']
+                $row['prenom']
             );
 
             return new Compteur(
                 $row['compteur_id'],
-                $row['numero'],
+                $row['numero_compteur'],
                 $client
             );
         }
@@ -56,9 +55,9 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
 
     public function findById($id): ?Compteur
     {
-        $query = "SELECT c.id AS compteur_id, c.numero, cl.id AS client_id, cl.nom, cl.prenom
-                  FROM compteurs c
-                  JOIN clients cl ON c.client_id = cl.id
+        $query = "SELECT c.id AS compteur_id, c.numero_compteur, cl.id AS client_id, cl.nom, cl.prenom
+                  FROM compteur c
+                  JOIN client cl ON c.client_id = cl.id
                   WHERE c.id = ?";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$id]);
@@ -67,12 +66,11 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
             $client = new Client(
                 $row['client_id'],
                 $row['nom'],
-                $row['prenom'],
-                $row['numero']
+                $row['prenom']
             );
             return new Compteur(
                 $row['compteur_id'],
-                $row['numero'],
+                $row['numero_compteur'],
                 $client
             );
         }
@@ -81,7 +79,7 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
 
     public function save($compteur): bool
     {
-        $query = "INSERT INTO compteurs (numero, client_id) VALUES (?, ?)";
+        $query = "INSERT INTO compteur (numero_compteur, client_id) VALUES (?, ?)";
         $params = [
             $compteur->getNumero(),
             $compteur->getClient()->getId()
@@ -97,7 +95,7 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
 
     public function update($compteur): bool
     {
-        $query = "UPDATE compteurs SET numero = ?, client_id = ? WHERE id = ?";
+        $query = "UPDATE compteur SET numero_compteur = ?, client_id = ? WHERE id = ?";
         $params = [
             $compteur->getNumero(),
             $compteur->getClient()->getId(),
@@ -113,7 +111,7 @@ class CompteurRepository extends AbstractRepository implements RepositoryInterfa
 
     public function delete($id): bool
     {
-        $query = "DELETE FROM compteurs WHERE id = ?";
+        $query = "DELETE FROM compteur WHERE id = ?";
         $stmt = $this->getConnection()->prepare($query);
         return $stmt->execute([$id]);
     }

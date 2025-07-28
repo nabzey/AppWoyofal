@@ -13,163 +13,159 @@ class ClientController
         $this->clientService = $clientService;
     }
 
-    // GET /clients/{id}
-    public function show(int $id): void
-    {
-        header('Content-Type: application/json');
-        $client = $this->clientService->getClientById($id);
-
-        if ($client) {
-            echo json_encode([
-                'data' => $this->clientService->serializeClient($client),
-                'statut' => 'success',
-                'code' => 200,
-                'message' => 'Client trouvé'
-            ]);
-        } else {
-            http_response_code(404);
-            echo json_encode([
-                'data' => null,
-                'statut' => 'error',
-                'code' => 404,
-                'message' => 'Aucun client trouvé avec cet ID'
-            ]);
-        }
-    }
-
     // GET /clients?numero=XYZ
-    public function findByNumero(string $numero): void
+    public function findByNumero(string $numero): array
     {
-        header('Content-Type: application/json');
         $client = $this->clientService->getClientByNumero($numero);
 
         if ($client) {
-            echo json_encode([
+            return [
                 'data' => $this->clientService->serializeClient($client),
                 'statut' => 'success',
                 'code' => 200,
                 'message' => 'Client trouvé'
-            ]);
+            ];
         } else {
-            http_response_code(404);
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'error',
                 'code' => 404,
                 'message' => 'Numéro de client non reconnu'
-            ]);
+            ];
+        }
+    }
+
+    // GET /clients/{id}
+    public function show(int $id): array
+    {
+        $client = $this->clientService->getClientById($id);
+
+        if ($client) {
+            return [
+                'data' => $this->clientService->serializeClient($client),
+                'statut' => 'success',
+                'code' => 200,
+                'message' => 'Client trouvé'
+            ];
+        } else {
+            return [
+                'data' => null,
+                'statut' => 'error',
+                'code' => 404,
+                'message' => 'Aucun client trouvé avec cet ID'
+            ];
         }
     }
 
     // POST /clients
-    public function store(): void
+    public function store(array $body): array
     {
-        header('Content-Type: application/json');
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode([
-                'data' => null,
-                'statut' => 'error',
-                'code' => 405,
-                'message' => 'Méthode non autorisée'
-            ]);
-            return;
-        }
-
-        $body = json_decode(file_get_contents('php://input'), true);
-
         if (!isset($body['nom']) || !isset($body['prenom'])) {
-            http_response_code(400);
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'error',
                 'code' => 400,
                 'message' => 'Champs obligatoires manquants : nom, prenom'
-            ]);
-            return;
+            ];
         }
 
         $client = $this->clientService->createClient($body);
 
         if ($client) {
-            http_response_code(201);
-            echo json_encode([
+            return [
                 'data' => $this->clientService->serializeClient($client),
                 'statut' => 'success',
                 'code' => 201,
                 'message' => 'Client créé avec succès'
-            ]);
+            ];
         } else {
-            http_response_code(500);
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'error',
                 'code' => 500,
                 'message' => 'Erreur lors de la création du client'
-            ]);
+            ];
         }
     }
 
     // PUT /clients/{id}
-    public function update(int $id): void
+    public function update(int $id, array $body): array
     {
-        header('Content-Type: application/json');
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-            http_response_code(405);
-            echo json_encode([
-                'data' => null,
-                'statut' => 'error',
-                'code' => 405,
-                'message' => 'Méthode non autorisée'
-            ]);
-            return;
-        }
-
-        $body = json_decode(file_get_contents('php://input'), true);
-
         $updated = $this->clientService->updateClient($id, $body);
 
         if ($updated) {
-            echo json_encode([
+            return [
                 'data' => $this->clientService->serializeClient($updated),
                 'statut' => 'success',
                 'code' => 200,
                 'message' => 'Client mis à jour avec succès'
-            ]);
+            ];
         } else {
-            http_response_code(404);
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'error',
                 'code' => 404,
                 'message' => 'Échec de mise à jour : client introuvable'
-            ]);
+            ];
         }
     }
 
     // DELETE /clients/{id}
-    public function delete(int $id): void
+    public function delete(int $id): array
     {
-        header('Content-Type: application/json');
         $success = $this->clientService->deleteClient($id);
 
         if ($success) {
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'success',
                 'code' => 200,
                 'message' => 'Client supprimé avec succès'
-            ]);
+            ];
         } else {
-            http_response_code(400);
-            echo json_encode([
+            return [
                 'data' => null,
                 'statut' => 'error',
                 'code' => 400,
                 'message' => 'Échec lors de la suppression du client'
-            ]);
+            ];
         }
+    }
+
+    // GET /client/compteur?numero=XYZ
+    public function getCompteurByNumero(string $numero): array
+    {
+        // On utilise le CompteurRepository pour récupérer le compteur
+        $compteurRepository = new \App\Repository\CompteurRepository();
+        $compteur = $compteurRepository->find($numero);
+
+        if ($compteur) {
+            return [
+                'data' => $compteur->toArray(),
+                'statut' => 'success',
+                'code' => 200,
+                'message' => 'Compteur trouvé pour ce client'
+            ];
+        } else {
+            return [
+                'data' => null,
+                'statut' => 'error',
+                'code' => 404,
+                'message' => 'Aucun compteur trouvé pour ce numéro'
+            ];
+        }
+    }
+
+    // GET /client
+    public function all(): array
+    {
+        $clients = $this->clientService->getAllClients();
+        $data = array_map(fn($c) => $this->clientService->serializeClient($c), $clients);
+        return [
+            'data' => $data,
+            'statut' => 'success',
+            'code' => 200,
+            'message' => count($data) ? 'Liste des clients' : 'Aucun client trouvé'
+        ];
     }
 }
