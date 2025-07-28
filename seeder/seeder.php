@@ -20,6 +20,12 @@ try {
 
     echo "Connexion à la base de données réussie!\n";
 
+    // Nettoyage des tables pour éviter les doublons
+    $pdo->exec('TRUNCATE TABLE achat RESTART IDENTITY CASCADE');
+    $pdo->exec('TRUNCATE TABLE compteur RESTART IDENTITY CASCADE');
+    $pdo->exec('TRUNCATE TABLE tranche RESTART IDENTITY CASCADE');
+    $pdo->exec('TRUNCATE TABLE client RESTART IDENTITY CASCADE');
+
     // Données de test
     $client = [
         ['nom' => 'Niang', 'prenom' => 'Die', 'telephone' => '771234567', 'adresse' => 'Dakar'],
@@ -40,12 +46,12 @@ try {
     }
 
     $tranche = [
-        ['tranche_num' => 1, 'seuil_min' => 0, 'seuil_max' => 100, 'prix_unitaire' => 98],
-        ['tranche_num' => 2, 'seuil_min' => 101, 'seuil_max' => 200, 'prix_unitaire' => 120],
-        ['tranche_num' => 3, 'seuil_min' => 201, 'seuil_max' => 999999, 'prix_unitaire' => 150],
+        ['libelle' => 'Tranche 1', 'prix_kw' => 98, 'limite_kw' => 100],
+        ['libelle' => 'Tranche 2', 'prix_kw' => 120, 'limite_kw' => 200],
+        ['libelle' => 'Tranche 3', 'prix_kw' => 150, 'limite_kw' => 999999],
     ];
     foreach ($tranche as $t) {
-        $pdo->prepare("INSERT INTO tranche (tranche_num, seuil_min, seuil_max, prix_unitaire) VALUES (:tranche_num, :seuil_min, :seuil_max, :prix_unitaire)")
+        $pdo->prepare("INSERT INTO tranche (libelle, prix_kw, limite_kw) VALUES (:libelle, :prix_kw, :limite_kw)")
             ->execute($t);
     }
 
@@ -55,15 +61,13 @@ try {
             'reference' => 'WOY-20250727-8007',
             'code_recharge' => '4851-2772-3511-5312',
             'nombre_kwh' => 1,
-            'tranche' => 1,
-            'prix_unitaire' => 98,
-            'montant_total' => 98,
-            'client_nom' => 'Niang',
-            'client_prenom' => 'Die'
+            'tranche_id' => 1,
+            'prix_kw' => 98,
+            'client_id' => 1
         ]
     ];
     foreach ($achat as $a) {
-        $pdo->prepare("INSERT INTO achat (compteur_id, reference, code_recharge, nombre_kwh, tranche, prix_unitaire, montant_total, client_nom, client_prenom) VALUES (:compteur_id, :reference, :code_recharge, :nombre_kwh, :tranche, :prix_unitaire, :montant_total, :client_nom, :client_prenom)")
+        $pdo->prepare("INSERT INTO achat (compteur_id, reference, code_recharge, nombre_kwh, tranche_id, prix_kw, client_id) VALUES (:compteur_id, :reference, :code_recharge, :nombre_kwh, :tranche_id, :prix_kw, :client_id)")
             ->execute($a);
     }
 

@@ -31,7 +31,7 @@ class Compteur
         return [
             'id' => $this->id,
             'numero' => $this->numero,
-            'client' => $this->client,
+            'client' => is_object($this->client) ? $this->client->toArray() : $this->client,
             'tranche' => $this->tranche
         ];
     }

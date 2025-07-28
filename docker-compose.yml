@@ -9,11 +9,11 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: app_woyofal
-      DB_USER: pguserWoyofal
+      DB_NAME: pgdbWoyofal
+      DB_USER: pguserDaf
       DB_PASSWORD: pgpassword
     volumes:
-      - ./public:/var/www/html/public
+      - ./:/var/www/html
     networks:
       - backend
     depends_on:
@@ -27,8 +27,8 @@ services:
     ports:
       - "8081:80"
     volumes:
-      - ./public:/var/www/html/public
-      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/custom.conf
+      - ./:/var/www/html
+      - ./.docker/ngnix/default.conf:/etc/nginx/conf.d/custom.conf
     networks:
       - backend
 

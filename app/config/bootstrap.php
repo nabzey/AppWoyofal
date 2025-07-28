@@ -26,6 +26,8 @@ $router->addRoute('GET', '/client/compteur', function () use ($clientController)
 // Tu peux ajouter ici d'autres routes comme :
 // $router->addRoute('POST', '/client', function () use ($clientController) { ... });
 
+require_once __DIR__ . '/../../routes/route.web.php';
+
 // Dispatch de la requête
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $router->dispatch($_SERVER['REQUEST_METHOD'], $uri);

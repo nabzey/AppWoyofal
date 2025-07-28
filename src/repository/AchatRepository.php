@@ -25,21 +25,19 @@ class AchatRepository extends AbstractRepository implements RepositoryInterface
 
     public function save($achat): bool
     {
-        $query = "INSERT INTO achats (
-            compteur, reference, code, date_achat,
-            tranche, prix_kw, nbre_kwt, client_nom, client_prenom
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO achat (
+            compteur_id, reference, code, nbre_kwt, date, tranche_id, prix_kw, client_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         $params = [
-            $achat->getCompteur(),
+            $achat->getCompteur() ? $achat->getCompteur()->getId() : null,
             $achat->getReference(),
             $achat->getCode(),
-            $achat->getDateAchat(),
-            $achat->getTranche(),
-            $achat->getPrixKw(),
             $achat->getNbreKwt(),
-            $achat->getClientNom(),
-            $achat->getClientPrenom()
+            $achat->getDate(),
+            $achat->getTranche() ? $achat->getTranche()->getId() : null,
+            $achat->getPrixKw(),
+            $achat->getClient() ? $achat->getClient()->getId() : null
         ];
 
         try {
@@ -52,14 +50,14 @@ class AchatRepository extends AbstractRepository implements RepositoryInterface
 
     public function find($id): ?Achat
     {
-        $query = "SELECT * FROM achats WHERE id = ?";
+        $query = "SELECT * FROM achat WHERE id = ?";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([$id]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
-            return new Achat($row); // instanciation à adapter
+            return Achat::toObject($row);
         }
 
         return null;
@@ -67,7 +65,7 @@ class AchatRepository extends AbstractRepository implements RepositoryInterface
 
     public function delete($id): bool
     {
-        $query = "DELETE FROM achats WHERE id = ?";
+        $query = "DELETE FROM achat WHERE id = ?";
         $stmt = $this->getConnection()->prepare($query);
         return $stmt->execute([$id]);
     }

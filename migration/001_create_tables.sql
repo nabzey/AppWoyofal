@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS achat;
+DROP TABLE IF EXISTS compteur;
+
 -- Table client
 CREATE TABLE IF NOT EXISTS client(
     id SERIAL PRIMARY KEY,
@@ -10,8 +13,8 @@ CREATE TABLE IF NOT EXISTS client(
 -- Table compteur
 CREATE TABLE IF NOT EXISTS compteur (
     id SERIAL PRIMARY KEY,
-    numero VARCHAR(50) UNIQUE,
-    client_id INTEGER REFERENCES clients(id)
+    numero_compteur VARCHAR(50) UNIQUE,
+    client_id INTEGER REFERENCES client(id)
 );
 
 -- Table tranche
@@ -26,10 +29,10 @@ CREATE TABLE IF NOT EXISTS tranche (
 CREATE TABLE IF NOT EXISTS achat (
     id SERIAL PRIMARY KEY,
     reference VARCHAR(50),
-    code VARCHAR(50),
-    nbre_kwt NUMERIC,
+    code_recharge VARCHAR(50),
+    nombre_kwh NUMERIC,
     date TIMESTAMP,
-    tranche_id INTEGER REFERENCES tranches(id),
+    tranche_id INTEGER REFERENCES tranche(id),
     prix_kw NUMERIC,
     client_id INTEGER REFERENCES client(id),
     compteur_id INTEGER REFERENCES compteur(id)

@@ -136,7 +136,7 @@ class ClientController
     public function getCompteurByNumero(string $numero): array
     {
         // On utilise le CompteurRepository pour récupérer le compteur
-        $compteurRepository = new \App\Repository\CompteurRepository();
+        $compteurRepository = \App\Repository\CompteurRepository::getInstance();
         $compteur = $compteurRepository->find($numero);
 
         if ($compteur) {
