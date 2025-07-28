@@ -1,0 +1,30 @@
+{
+    "name": "zeynab/packagist",
+    "autoload": {
+        "psr-4": {
+            "App\\Entity\\": "src/entity",
+            "App\\Core\\": "app/core",
+            "App\\Controller\\": "src/controller",
+            "App\\Repository\\": "src/repository",
+            "App\\Service\\": "src/service",
+            "App\\Core\\Abstract\\": "app/core/abstract",
+            "App\\Config\\":"app/config/"
+        }
+    },
+    "authors": [
+        {
+            "name": "nabzey",
+            "email": "zeynabba45@gmail.com"
+        }
+    ],
+      "require": {
+    "vlucas/phpdotenv": "^5.6",
+    "twilio/sdk": "^8.6",
+    "symfony/yaml": "^7.3"
+      },
+             "scripts": {
+    "database:migrate": "php migration/migration.php --reset",
+    "seeder:migrate": "php seeder/seeder.php --reset",
+    "start": "php -S localhost:8081 -t public"
+  }
+}

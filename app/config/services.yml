@@ -1,0 +1,55 @@
+# Configuration des services AppWoyofal
+services:
+  # Repositories
+  repositories:
+    ClientRepository:
+      class: App\Repository\ClientRepository
+      dependencies:
+        - PDO
+      singleton: true
+
+    LoggerRepository:
+      class: App\Repository\LoggerRepository
+      dependencies:
+        - PDO
+      singleton: true
+
+  # Services
+  services:
+    LoggerService:
+      class: App\Service\LoggerService
+      dependencies:
+        - LoggerRepository
+      singleton: true
+
+    ClientService:
+      class: App\Service\ClientService
+      dependencies:
+        - ClientRepository
+        - LoggerService
+      singleton: true
+
+  # Controllers
+  controllers:
+    ClientController:
+      class: App\Controller\ClientController
+      dependencies:
+        - ClientService
+      singleton: true
+
+  # Core Services
+  PDO:
+    factory: App\Core\Database::getConnection
+    singleton: true
+
+# Configuration base de données
+database:
+  host: ${DB_HOST:postgres}
+  port: ${DB_PORT:5432}
+  name: ${DB_NAME:AppWoyofal}
+  user: ${DB_USER:pguserWoyofal}
+  password: ${DB_PASSWORD:pgpassword}
+
+# API
+api:
+  base_url: ${API_BASE_URL:http://localhost:8081}
