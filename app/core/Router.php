@@ -31,7 +31,7 @@ class Router
                 $result = call_user_func($this->routes[$method][$path]);
                 error_log("Route exécutée avec succès");
                 return $result;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Erreur lors de l'exécution de la route: " . $e->getMessage());
                 return [
                     'data' => null,

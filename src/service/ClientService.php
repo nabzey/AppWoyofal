@@ -108,22 +108,43 @@ class ClientService
      * Gère l'achat d'un crédit Woyofal pour un client via un numéro de compteur et un montant.
      * Retourne la structure attendue (success ou error).
      */
-    public function acheterCreditWoyofal(string $numeroCompteur, float $montant): array
-    {
-        // Vérifier l'existence du compteur
-        $compteur = $this->compteurService->getCompteurByNumero($numeroCompteur);
-        if (!$compteur) {
-            $this->loggerService->log("Achat échoué : numéro de compteur non trouvé ($numeroCompteur)");
-            return [
-                'data' => null,
-                'statut' => 'error',
-                'code' => 404,
-                'message' => 'Le numéro de compteur non retrouvé'
-            ];
-        }
-        // Générer l'achat via AchatService (qui gère tranches, code, etc.)
-        $result = $this->achatService->genererAchat($numeroCompteur, $montant);
-        // Journalisation déjà faite dans AchatService
-        return $result;
+ public function gererAchatPourCompteur(string $numeroCompteur, float $montant): array
+{
+    $compteur = $this->compteurService->getCompteurByNumero($numeroCompteur);
+    if (!$compteur) {
+        return [
+            'data' => null,
+            'statut' => 'error',
+            'code' => 404,
+            'message' => 'Compteur introuvable pour le numéro fourni'
+        ];
     }
+
+    // 🔄 Récupérer le client lié au compteur
+    $client = $this->getClientByNumero($numeroCompteur);
+    if (!$client) {
+        return [
+            'data' => null,
+            'statut' => 'error',
+            'code' => 404,
+            'message' => 'Client introuvable pour le numéro de compteur'
+        ];
+    }
+
+    // 💰 Processus d’achat via le service Achat
+    $resultatAchat = $this->achatService->genererAchat($numeroCompteur, $montant);
+
+    // 🧾 Structuration finale
+    return [
+        'data' => [
+            'client' => $this->serializeClient($client),
+            'achat' => $resultatAchat['ticket'] ?? [],
+            'resume' => $resultatAchat['resume'] ?? []
+        ],
+        'statut' => 'success',
+        'code' => 201,
+        'message' => 'Achat effectué et client retrouvé'
+    ];
+}
+
 }

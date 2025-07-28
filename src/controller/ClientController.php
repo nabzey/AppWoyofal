@@ -170,19 +170,36 @@ class ClientController
     }
     
     // POST /clients/achat
-    public function acheterCredit(array $body): array
+public function acheterCredit(array $body): array
 {
-    if (!isset($body['numero_compteur']) || !isset($body['montant'])) {
+    $numero = $body['numero_compteur'] ?? '';
+    $montant = $body['montant'] ?? 0;
+
+    // 🔎 Récupération du client
+    $client = $this->clientService->getClientByNumero($numero);
+    if (!$client) {
         return [
             'data' => null,
             'statut' => 'error',
-            'code' => 400,
-            'message' => 'Champs obligatoires manquants : numero_compteur, montant'
+            'code' => 404,
+            'message' => "Aucun client trouvé pour le numéro $numero"
         ];
     }
-    $numeroCompteur = $body['numero_compteur'];
-    $montant = (float)$body['montant'];
-    $result = $this->clientService->acheterCreditWoyofal($numeroCompteur, $montant);
-    return $result;
+
+    // ⚡ Traitement d’achat
+    $resultatAchat = $this->clientService->gererAchatPourCompteur($numero, $montant);
+
+    // 📦 Préparation de la réponse avec client et ticket d’achat
+    return [
+        'data' => [
+            'client' => $this->clientService->serializeClient($client),
+            'achat' => $resultatAchat['ticket'],
+            'resume' => $resultatAchat['resume']
+        ],
+        'statut' => 'success',
+        'code' => 201,
+        'message' => 'Achat effectué avec succès et client récupéré'
+    ];
 }
+
 }
